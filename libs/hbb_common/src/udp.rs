@@ -4,6 +4,7 @@ use bytes::{Bytes, BytesMut};
 use futures::{SinkExt, StreamExt};
 use protobuf::Message;
 use socket2::{Domain, Socket, Type};
+use std::io;
 use std::net::SocketAddr;
 use tokio::net::{lookup_host, ToSocketAddrs, UdpSocket};
 use tokio_socks::{udp::Socks5UdpFramed, IntoTargetAddr, TargetAddr, ToProxyAddrs};
@@ -167,4 +168,12 @@ impl FramedSocket {
         }
         None
     }
+
+    pub fn local_addr1(&self) -> io::Result<SocketAddr> {
+        if let FramedSocket::Direct(x) = self {
+            return x.get_ref().local_addr();
+        }
+        Err(io::Error::new(io::ErrorKind::InvalidData, "Invalid FramedSocket variant"))
+    }
+
 }

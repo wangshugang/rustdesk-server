@@ -94,13 +94,14 @@ impl RendezvousServer {
         let (key, sk) = Self::get_server_sk(key);
         let nat_port = port - 1;
         let ws_port = port + 2;
+        let udp_port = port+6;
         let pm = PeerMap::new().await?;
         log::info!("serial={}", serial);
         let rendezvous_servers = get_servers(&get_arg("rendezvous-servers"), "rendezvous-servers");
-        log::info!("Listening on tcp/udp :{}", port);
+        log::info!("Listening on tcp/udp :{}/{}", port,udp_port);
         log::info!("Listening on tcp :{}, extra port for NAT test", nat_port);
         log::info!("Listening on websocket :{}", ws_port);
-        let mut socket = create_udp_listener(port, rmem).await?;
+        let mut socket = create_udp_listener(udp_port, rmem).await?;
         let (tx, mut rx) = mpsc::unbounded_channel::<Data>();
         let software_url = get_arg("software-url");
         let version = hbb_common::get_version_from_url(&software_url);
@@ -161,7 +162,8 @@ impl RendezvousServer {
         );
         if test_addr.to_lowercase() != "no" {
             let test_addr = if test_addr.is_empty() {
-                listener.local_addr()?
+                // listener.local_addr()?
+                socket.local_addr1()?
             } else {
                 test_addr.parse()?
             };
@@ -197,7 +199,7 @@ impl RendezvousServer {
                 {
                     LoopFailure::UdpSocket => {
                         drop(socket);
-                        socket = create_udp_listener(port, rmem).await?;
+                        socket = create_udp_listener(udp_port, rmem).await?;
                     }
                     LoopFailure::Listener => {
                         drop(listener);
