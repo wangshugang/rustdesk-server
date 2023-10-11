@@ -160,6 +160,7 @@ impl FramedSocket {
         }
     }
 
+    #[inline]
     pub fn local_addr(&self) -> Option<SocketAddr> {
         if let FramedSocket::Direct(x) = self {
             if let Ok(v) = x.get_ref().local_addr() {
@@ -169,6 +170,7 @@ impl FramedSocket {
         None
     }
 
+    #[inline]
     pub fn local_addr_(&self) -> io::Result<SocketAddr> {
         if let FramedSocket::Direct(x) = self {
             return x.get_ref().local_addr();
