@@ -163,7 +163,7 @@ impl RendezvousServer {
         if test_addr.to_lowercase() != "no" {
             let test_addr = if test_addr.is_empty() {
                 // listener.local_addr()?
-                socket.local_addr1()?
+                socket.local_addr_()?
             } else {
                 test_addr.parse()?
             };
